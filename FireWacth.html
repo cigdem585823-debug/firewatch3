@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MODIS ve VIIRS yangın gözlemlerini incelemek için FireWatch öğrenci projesi.">
+  <title>FireWatch | Yangın İzleme Paneli</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">🔥</span> FireWatch</a>
+    <nav aria-label="Ana menü">
+      <a class="active" href="#dashboard">Genel Bakış</a>
+      <a href="#map-section">Yangın Haritası</a>
+      <a href="#analytics">Analizler</a>
+      <a href="#about">Proje Hakkında</a>
+    </nav>
+    <span class="status"><i></i> Harita prototipi</span>
+  </header>
+
+  <main class="container" id="dashboard">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">UYDU VERİLERİYLE YANGIN GÖZLEMİ</p>
+        <h1>Yangınları anlayalım.<br><span>Riskli dönemleri keşfedelim.</span></h1>
+        <p class="hero-copy">MODIS ve VIIRS gözlemlerini tek bir yerde incelemek için geliştirilen öğrenci projesi.</p>
+        <a class="primary-button" href="#map-section">Haritayı keşfet <span>↘</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="planet">🌍</div><div class="satellite">🛰️</div><div class="flame">🔥</div>
+      </div>
+    </section>
+
+    <section class="notice">
+      <strong>Önemli:</strong> Harita altlığı internetten yüklenir. Üzerindeki işaretçiler yalnızca arayüzü test etmek için eklenmiş örnek noktalardır; gerçek yangın veya NASA verisi değildir.
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span class="stat-label">Örnek gözlem noktası</span><strong id="total-count">4</strong><small>Demo veri</small></article>
+      <article class="stat-card"><span class="stat-label">MODIS örnekleri</span><strong id="modis-count">2</strong><small>Gerçek kayıt değil</small></article>
+      <article class="stat-card"><span class="stat-label">VIIRS örnekleri</span><strong id="viirs-count">2</strong><small>Gerçek kayıt değil</small></article>
+      <article class="stat-card"><span class="stat-label">Harita merkezi</span><strong>Türkiye</strong><small>İnteraktif görünüm</small></article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel map-panel" id="map-section">
+        <div class="section-heading">
+          <div><p class="eyebrow">İNTERAKTİF HARİTA</p><h2>Yangın gözlem haritası</h2></div>
+          <span class="demo-tag">ÖRNEK NOKTALAR</span>
+        </div>
+        <div id="fire-map" aria-label="Türkiye haritası üzerinde örnek gözlem noktaları"></div>
+        <section id="history-calendar">
+    <h2>Geçmiş Yangın Gözlemleri</h2>
+    <p>İncelemek istediğin tarihi seç.</p>
+    <input type="date" id="history-date">
+    <div id="history-results"></div>
+</section>
+<section id="comparison-chart">
+    <h2>MODIS ve VIIRS Karşılaştırması</h2>
+    <canvas 
+          id="sensor-chart"></canvas>
+    </canvas>
+    <p>Grafik, örnek gözlem kayıtlarını karşılaştırır.</p>
+        <div class="legend">
+          <span><i class="modis-dot"></i> MODIS (örnek)</span>
+          <span><i class="viirs-dot"></i> VIIRS (örnek)</span>
+        </div>
+        <p class="map-note">Haritayı yakınlaştırabilir, uzaklaştırabilir ve işaretçilere tıklayabilirsin.</p>
+      </article>
+
+      <article class="panel filter-panel">
+        <p class="eyebrow">VERİ FİLTRELEME</p>
+        <h2>Gözlemleri incele</h2>
+        <label for="sensor">Uydu sensörü</label>
+        <select id="sensor">
+          <option value="all">Tüm sensörler</option>
+          <option value="modis">MODIS</option>
+          <option value="viirs">VIIRS</option>
+        </select>
+        <label for="region">Bölge</label>
+        <select id="region">
+          <option value="all">Tüm bölgeler</option>
+          <option value="marmara">Marmara</option>
+          <option value="ege">Ege</option>
+          <option value="akdeniz">Akdeniz</option>
+          <option value="ic-anadolu">İç Anadolu</option>
+        </select>
+        <label for="start-date">Başlangıç tarihi</label>
+        <input id="start-date" type="date">
+        <label for="end-date">Bitiş tarihi</label>
+        <input id="end-date" type="date">
+        <button id="apply-filters" class="primary-button full-width">Filtreleri uygula</button>
+        <button id="reset-filters" class="secondary-button full-width">Filtreleri temizle</button>
+        <p id="filter-message" class="filter-message" aria-live="polite">4 örnek nokta gösteriliyor.</p>
+      </article>
+    </section>
+
+    <section class="panel analytics" id="analytics">
+      <div class="section-heading">
+        <div><p class="eyebrow">SONRAKİ GELİŞTİRME</p><h2>Yangın istatistikleri</h2></div>
+        <span class="demo-tag">HENÜZ DEMO</span>
+      </div>
+      <p class="chart-note">Bir sonraki aşamada gerçek NASA kayıtlarından aylık ve yıllık grafikler oluşturacağız. Şu anda bu bölüm için gerçek istatistik gösterilmiyor.</p>
+    </section>
+
+    <section class="about" id="about">
+      <div><p class="eyebrow">PROJE HAKKINDA</p><h2>MODIS + VIIRS, ortak bir görünümde.</h2></div>
+      <p>FireWatch; farklı uydu sensörlerinden gelen yangın gözlemlerini ortak zaman ve konum bilgileriyle incelemeyi hedefleyen bir öğrenci projesidir. Bu prototipte gerçek NASA verileri henüz bağlı değildir.</p>
+    </section>
+  </main>
+  <footer><span>🔥 FireWatch</span><span>NASA Space Apps Challenge 2026 • Öğrenci proje prototipi</span></footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+ <script src="script.js"></script>
+</body>
+</html>
+const chartCanvas = document.getElementById('sensor-chart');
+
+new Chart(chartCanvas, {
+    type: 'bar',
+    data: {
+        labels: ['MODIS', 'VIIRS'],
+        datasets: [{
+            label: 'Örnek gözlem sayısı',
+            data: [
+                demoObservations.filter(p => p.sensor === 'modis').length,
+                demoObservations.filter(p => p.sensor === 'viirs').length
+            ],
+            backgroundColor: ['#f2b84b', '#ff7048']
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
